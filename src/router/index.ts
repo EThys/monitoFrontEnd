@@ -10,6 +10,7 @@ import NotFoundView from '@/views/Errors/NotFoundView.vue'
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { getUser, type IUser } from '@/stores/user'
 import PlanForfaitView from '@/views/PlanForfaitView.vue'
+import RegisterView from '@/views/Auth/RegisterView.vue'
 
 
 // Définition des métadonnées de route étendues
@@ -53,6 +54,17 @@ const routes: Array<RouteRecordRaw> = [
     name: 'dashboard',
     component: DashboardView,
     meta: { requiresAuth: true, title: 'Tableau de bord' }
+  },
+  {
+    path: '/register',
+    name: 'register',
+    component: RegisterView,
+    meta: {
+      requiresAuth: true,
+      requiredRole: 'admin',
+      title: 'register',
+      breadcrumb: 'register'
+    }
   },
   {
     path: '/admin/dashboard/forfait',
