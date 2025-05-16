@@ -1,20 +1,27 @@
 <!-- eslint-disable @typescript-eslint/ban-ts-comment -->
 <script setup lang="ts">
-import axios from 'axios';
 import { useRouter } from 'vue-router'
 //@ts-ignore
-import { ref, computed, onMounted ,watchEffect,onUnmounted} from 'vue';
+import { ref, computed, onMounted} from 'vue';
 //@ts-ignore
 import { useAxiosRequestWithToken } from '@/utils/service/axios_api'
 //@ts-ignore
 import { ApiRoutes } from '@/utils/service/endpoints/api'
 //@ts-ignore
-import type { IPlan } from '@/interfaces/plan'
-//@ts-ignore
 import { useToast } from 'vue-toast-notification'
 //@ts-ignore
 import { getToken } from '@/stores/token'
-import { setPlans } from '@/stores/plans';
+//@ts-ignore
+import type { IPlan } from '@/utils/interface/plan/IPlan';
+//@ts-ignore
+import { clearUser, getUser } from '@/stores/user'
+//@ts-ignore
+import { clearToken } from '@/stores/token'
+
+
+//@ts-ignore
+import SideBar from '@/components/navbar/SIdeBarComponent.vue';
+
 
 const toast = useToast()
 
@@ -22,13 +29,10 @@ const planForm = ref<IPlan>({
   PlanName: '',
   PlanDescription: '',
   PlanPrice: 0,
-  PlanDuration: 1,
-  PlanStartDate: '',
-  PlanEndDate: '',
-  PlanTotal: 0,
   PlanSpeed: '',
-  PlanUsed: '',
-  PlanStatus: 'active'
+  PlanTotal: 0,
+  PlanStatus: 'active',
+  PlanId: 0
 })
 
 const token = getToken() as string
@@ -57,9 +61,9 @@ const createPlan = async () => {
   loading.value = true
 
   // Validation simple côté client
-  if (!planForm.value.PlanName || planForm.value.PlanPrice <= 0 || planForm.value.PlanDuration <= 0) {
+  if (!planForm.value.PlanName || planForm.value.PlanPrice <= 0 || !planForm.value.PlanSpeed || planForm.value.PlanTotal <= 0) {
     toast.open({
-      message: 'Le nom, le prix et la durée du forfait sont obligatoires',
+      message: 'Tous les champs sont obligatoires',
       type: 'error',
       position: 'bottom',
       duration: 5000
@@ -83,7 +87,7 @@ const createPlan = async () => {
   }, 30000)
 
   try {
-    const response = await useAxiosRequestWithToken(token).post(
+     await useAxiosRequestWithToken(token).post(
       ApiRoutes.storePlan,
       planForm.value,
       { signal: abortSignal }
@@ -116,96 +120,6 @@ const createPlan = async () => {
 }
 
 const isLoading = ref(false);
-const PLANS_CACHE_KEY = 'cached_plans';
-const PLANS_LAST_FETCH_KEY = 'plans_last_fetch';
-const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
-
-
-
-
-
-
-// Données des forfaits
-// const plans = ref([
-//   {
-//     id: 1,
-//     PlanName: 'Basique 50GB',
-//     PlanDescription: 'Forfait entrée de gamme avec 50GB/mois',
-//     PlanPrice: 19.99,
-//     PlanDuration: 1,
-//     PlanStartDate: '2023-01-01',
-//     PlanEndDate: '2023-02-01',
-//     PlanTotal: 50,
-//     PlanSpeed: '10Mbps',
-//     PlanUsed: '25GB',
-//     PlanStatus: 'active'
-//   },
-//   {
-//     id: 2,
-//     PlanName: 'Standard 100GB',
-//     PlanDescription: 'Forfait standard avec 100GB/mois',
-//     PlanPrice: 29.99,
-//     PlanDuration: 1,
-//     PlanStartDate: '2023-01-15',
-//     PlanEndDate: '2023-02-15',
-//     PlanTotal: 100,
-//     PlanSpeed: '20Mbps',
-//     PlanUsed: '75GB',
-//     PlanStatus: 'active'
-//   },
-//   {
-//     id: 3,
-//     PlanName: 'Business 250GB',
-//     PlanDescription: 'Forfait professionnel avec 250GB/mois',
-//     PlanPrice: 49.99,
-//     PlanDuration: 1,
-//     PlanStartDate: '2023-02-01',
-//     PlanEndDate: '2023-03-01',
-//     PlanTotal: 250,
-//     PlanSpeed: '50Mbps',
-//     PlanUsed: '120GB',
-//     PlanStatus: 'active'
-//   },
-//   {
-//     id: 4,
-//     PlanName: 'Premium 500GB',
-//     PlanDescription: 'Forfait haut débit avec 500GB/mois',
-//     PlanPrice: 79.99,
-//     PlanDuration: 1,
-//     PlanStartDate: '2023-02-15',
-//     PlanEndDate: '2023-03-15',
-//     PlanTotal: 500,
-//     PlanSpeed: '100Mbps',
-//     PlanUsed: '300GB',
-//     PlanStatus: 'active'
-//   },
-//   {
-//     id: 5,
-//     PlanName: 'Annuel Business',
-//     PlanDescription: 'Forfait annuel avec économies',
-//     PlanPrice: 499.99,
-//     PlanDuration: 12,
-//     PlanStartDate: '2023-01-01',
-//     PlanEndDate: '2024-01-01',
-//     PlanTotal: 3600,
-//     PlanSpeed: '50Mbps',
-//     PlanUsed: '1200GB',
-//     PlanStatus: 'active'
-//   },
-//   {
-//     id: 6,
-//     PlanName: 'Annuel Premium',
-//     PlanDescription: 'Forfait annuel premium',
-//     PlanPrice: 799.99,
-//     PlanDuration: 12,
-//     PlanStartDate: '2023-01-01',
-//     PlanEndDate: '2024-01-01',
-//     PlanTotal: 7200,
-//     PlanSpeed: '100Mbps',
-//     PlanUsed: '3500GB',
-//     PlanStatus: 'inactive'
-//   }
-// ]);
 
 // Variables pour les modales
 const showModal = ref(false);
@@ -216,15 +130,12 @@ const planToDelete = ref<typeof plans.value[0] | null>(null);
 // Réinitialisation du formulaire
 function resetForm() {
   planForm.value = {
+    PlanId:0,
     PlanName: '',
     PlanDescription: '',
     PlanPrice: 0,
-    PlanDuration: 1,
-    PlanStartDate: '',
-    PlanEndDate: '',
-    PlanTotal: 0,
     PlanSpeed: '',
-    PlanUsed: '',
+    PlanTotal: 0,
     PlanStatus: 'active'
   };
 }
@@ -258,9 +169,9 @@ function closeModal() {
 const updatePlan = async () => {
   loading.value = true;
 
-  if (!planForm.value.PlanId || !planForm.value.PlanName || planForm.value.PlanPrice <= 0) {
+  if (!planForm.value.PlanId || !planForm.value.PlanName || planForm.value.PlanPrice <= 0 || !planForm.value.PlanSpeed || planForm.value.PlanTotal <= 0) {
     toast.open({
-      message: 'Données du forfait invalides',
+      message: 'Tous les champs sont obligatoires',
       type: 'error',
       position: 'bottom',
       duration: 5000
@@ -302,16 +213,6 @@ const updatePlan = async () => {
     loading.value = false;
   }
 };
-// function updatePlan() {
-//   const index = plans.value.findIndex(p => p.PlanId === planForm.value.PlanId);
-//   if (index !== -1) {
-//     plans.value[index] = planForm.value;
-//   }
-//   closeModal();
-// }
-
-
-// Suppression confirmée
 
 const confirmDelete = async () => {
   if (!planToDelete.value) return;
@@ -347,13 +248,6 @@ const confirmDelete = async () => {
     loading.value = false;
   }
 };
-// function confirmDelete() {
-//   if (planToDelete.value) {
-//     plans.value = plans.value.filter(p => p.PlanId !== planToDelete.value?.PlanId);
-//     showDeleteModal.value = false;
-//     planToDelete.value = null;
-//   }
-// }
 
 // Filtres et recherche
 const searchQuery = ref('');
@@ -362,8 +256,6 @@ const statusFilter = ref('active');
 // Forfaits filtrés
 const filteredPlans = computed(() => {
   let result = plans.value;
-
-  console.log("kitokoooooooooooooo",result)
 
   // Filtre par recherche
   if (searchQuery.value) {
@@ -388,6 +280,25 @@ function resetFilters() {
   statusFilter.value = 'active';
 }
 
+//Header
+
+const isUserMenuOpen = ref(false);
+
+function toggleUserMenu() {
+  isUserMenuOpen.value = !isUserMenuOpen.value;
+}
+
+function logout() {
+  // Implémentez votre logique de déconnexion ici
+  console.log('Déconnexion...');
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+  clearUser(), clearToken(), router.push('/')
+  isUserMenuOpen.value = false;
+}
+
+
+//Header
+
 // Fonctions utilitaires
 function getStatusClass(status: string) {
   return status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
@@ -404,23 +315,6 @@ function getStatusText(status: string) {
 function formatPrice(price: number) {
   return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'USD' }).format(price);
 }
-
-function formatDuration(months: number) {
-  return months === 1 ? '1 mois' : `${months} mois`;
-}
-
-function formatDate(dateString: string) {
-  if (!dateString) return 'N/A';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('fr-FR');
-}
-
-function formatDataUsage(used: string, total: number) {
-  if (!used) return '0%';
-  const usedValue = parseFloat(used.replace(/[^\d.]/g, ''));
-  const percentage = Math.round((usedValue / total) * 100);
-  return `${percentage}%`;
-}
 </script>
 
 <template>
@@ -432,7 +326,7 @@ function formatDataUsage(used: string, total: number) {
           <h3 class="text-xl font-bold text-gray-800">
             {{ isEditing ? 'Modifier un forfait' : 'Créer un nouveau forfait' }}
           </h3>
-          <button @click="closeModal" class="text-gray-500 hover:text-gray-700">
+          <button @click="closeModal" class="text-gray-500 cursor-pointer hover:text-gray-700">
             <i class="fas fa-times"></i>
           </button>
         </div>
@@ -475,17 +369,6 @@ function formatDataUsage(used: string, total: number) {
               </div>
 
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Durée (mois)</label>
-                <input
-                  v-model.number="planForm.PlanDuration"
-                  type="number"
-                  min="1"
-                  required
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-              </div>
-
-              <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Vitesse</label>
                 <input
                   v-model="planForm.PlanSpeed"
@@ -495,29 +378,7 @@ function formatDataUsage(used: string, total: number) {
                   placeholder="Ex: 50Mbps"
                 >
               </div>
-            </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Date de début</label>
-                <input
-                  v-model="planForm.PlanStartDate"
-                  type="date"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Date de fin</label>
-                <input
-                  v-model="planForm.PlanEndDate"
-                  type="date"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Données totales (GB)</label>
                 <input
@@ -526,16 +387,6 @@ function formatDataUsage(used: string, total: number) {
                   min="0"
                   required
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Données utilisées</label>
-                <input
-                  v-model="planForm.PlanUsed"
-                  type="text"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Ex: 25GB"
                 >
               </div>
             </div>
@@ -558,14 +409,14 @@ function formatDataUsage(used: string, total: number) {
               type="button"
               @click="closeModal"
               :disabled="loading"
-              class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="px-4 py-2 border cursor-pointer border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Annuler
             </button>
             <button
               type="submit"
               :disabled="loading"
-              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-24"
+              class="px-4 py-2 bg-blue-600 cursor-pointer text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-24"
             >
               <i v-if="loading" class="fas fa-spinner fa-spin mr-2"></i>
               {{ isEditing ? 'Mettre à jour' : 'Créer' }}
@@ -583,7 +434,7 @@ function formatDataUsage(used: string, total: number) {
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-xl font-bold text-gray-800">Confirmer la suppression</h3>
           <button @click="showDeleteModal = false" class="text-gray-500 hover:text-gray-700">
-            <i class="fas fa-times"></i>
+            <i class=" cursor-pointer fas fa-times"></i>
           </button>
         </div>
 
@@ -592,7 +443,7 @@ function formatDataUsage(used: string, total: number) {
         <div class="flex justify-end space-x-3">
           <button
             @click="showDeleteModal = false"
-            class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+            class="px-4 py-2 border cursor-pointer border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
           >
             Annuler
           </button>
@@ -600,7 +451,6 @@ function formatDataUsage(used: string, total: number) {
             @click="confirmDelete"
             :disabled="loading"
             class="px-4 py-2 bg-red-600 cursor-pointer text-white rounded-lg hover:bg-red-700"
-
           >
           <i v-if="loading" class="fas fa-spinner fa-spin mr-2"></i>
             Supprimer
@@ -611,28 +461,87 @@ function formatDataUsage(used: string, total: number) {
   </div>
 
   <div class="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-    <!-- Header élégant avec fond dégradé -->
-    <header class="bg-gradient-to-r from-blue-700 to-blue-600 shadow-lg">
-      <div class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <div class="flex flex-col md:flex-row justify-between items-center">
-          <div class="mb-4 md:mb-0">
-            <h1 class="text-3xl font-bold text-white">Nos Forfaits Internet</h1>
-            <p class="text-blue-100 mt-2">Découvrez nos solutions haut débit adaptées à vos besoins</p>
-          </div>
-          <div class="relative w-full md:w-96">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <i class="fas fa-search text-blue-200"></i>
+  <!-- Header élégant avec fond dégradé -->
+  <header class="bg-gradient-to-r from-blue-700 to-blue-600 shadow-lg  top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+      <!-- Première ligne avec le menu utilisateur -->
+      <div class="flex justify-end items-center mb-2">
+        <div class="relative">
+          <!-- Bouton profil -->
+          <button
+            @click="toggleUserMenu"
+            class="flex items-center cursor-pointer text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-white"
+          >
+            <span class="sr-only">Ouvrir le menu utilisateur</span>
+            <div class="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center text-white border border-white/30">
+              <i class="fas fa-user"></i>
             </div>
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="Rechercher un forfait..."
-              class="w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-sm border border-blue-400/30 rounded-xl text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white focus:border-white transition-all"
+            <span class="ml-2 text-white text-sm hidden md:inline">Mon compte</span>
+            <i class="fas fa-chevron-down ml-1 text-white/80 text-xs hidden md:inline"></i>
+          </button>
+
+          <!-- Menu dropdown -->
+          <transition
+            enter-active-class="transition ease-out duration-100"
+            enter-from-class="transform opacity-0 scale-95"
+            enter-to-class="transform opacity-100 scale-100"
+            leave-active-class="transition ease-in duration-75"
+            leave-from-class="transform opacity-100 scale-100"
+            leave-to-class="transform opacity-0 scale-95"
+          >
+            <div
+              v-if="isUserMenuOpen"
+              class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
             >
-          </div>
+              <button
+                @click="logout"
+                class="block cursor-pointer w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                Se déconnecter
+              </button>
+            </div>
+          </transition>
         </div>
       </div>
-    </header>
+
+      <!-- Deuxième ligne avec le titre et la recherche (votre design existant) -->
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="mb-4 md:mb-0">
+          <h1 class="text-3xl font-bold text-center text-white">Nos Forfaits Internet</h1>
+          <p class="text-blue-100 mt-2 mb-5">Découvrez nos solutions haut débit adaptées à vos besoins</p>
+        </div>
+        <div class="relative w-full md:w-96">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-search text-blue-200"></i>
+          </div>
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Rechercher un forfait..."
+            class="w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-sm border border-blue-400/30 rounded-xl text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white focus:border-white transition-all"
+          >
+        </div>
+      </div>
+
+      <!-- Navigation principale -->
+      <nav class="flex justify-center space-x-6 py-3">
+        <router-link
+          to="/admin/dashboard/agence"
+          class="text-white/90 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
+          active-class="text-white font-semibold border-b-2 border-white"
+        >
+          Agences
+        </router-link>
+        <router-link
+        to="/admin/dashboard/forfait"
+          class="text-white/90 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
+          active-class="text-white font-semibold border-b-2 border-white"
+        >
+          Forfaits
+        </router-link>
+      </nav>
+    </div>
+  </header>
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
@@ -660,7 +569,7 @@ function formatDataUsage(used: string, total: number) {
           <div class="md:col-span-2 flex items-end">
             <button
               @click="resetFilters"
-              class="w-full md:w-auto flex items-center justify-center px-4 py-2.5 border border-gray-200 rounded-lg bg-white text-gray-700 hover:bg-gray-50 transition-all hover:shadow-sm"
+              class="w-full md:w-auto cursor-pointer flex items-center justify-center px-4 py-2.5 border border-gray-200 rounded-lg bg-white text-gray-700 hover:bg-gray-50 transition-all hover:shadow-sm"
             >
               <i class="fas fa-redo mr-2"></i>
               Réinitialiser
@@ -698,7 +607,7 @@ function formatDataUsage(used: string, total: number) {
             <p class="text-gray-500 mb-6">Modifiez vos critères de recherche ou créez un nouveau forfait</p>
             <button
               @click="resetFilters"
-              class="inline-flex items-center px-5 py-3 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all"
+              class="inline-flex items-center cursor-pointer px-5 py-3 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all"
             >
               <i class="fas fa-redo mr-2"></i> Réinitialiser les filtres
             </button>
@@ -731,7 +640,7 @@ function formatDataUsage(used: string, total: number) {
               <div class="ml-4">
                 <h2 class="text-lg font-semibold text-gray-900">{{ plan.PlanName }}</h2>
                 <p class="text-sm text-gray-500">
-                  {{ formatDuration(plan.PlanDuration) }} • {{ formatPrice(plan.PlanPrice) }}
+                  {{ formatPrice(plan.PlanPrice) }}
                 </p>
               </div>
             </div>
@@ -750,12 +659,10 @@ function formatDataUsage(used: string, total: number) {
                 <p class="font-bold text-blue-600">{{ plan.PlanTotal }}GB</p>
               </div>
               <div class="bg-gray-50 p-3 rounded-lg">
-                <p class="text-xs text-gray-500">Utilisation</p>
-                <p class="font-bold text-blue-600">{{ formatDataUsage(plan.PlanUsed, plan.PlanTotal) }}</p>
-              </div>
-              <div class="bg-gray-50 p-3 rounded-lg">
-                <p class="text-xs text-gray-500">Période</p>
-                <p class="font-bold text-blue-600">{{ formatDate(plan.PlanStartDate) }} - {{ formatDate(plan.PlanEndDate) }}</p>
+                <p class="text-xs text-gray-500">Statut</p>
+                <p class="font-bold" :class="plan.PlanStatus === 'active' ? 'text-green-600' : 'text-gray-600'">
+                  {{ getStatusText(plan.PlanStatus) }}
+                </p>
               </div>
             </div>
 
@@ -777,8 +684,6 @@ function formatDataUsage(used: string, total: number) {
           </div>
         </div>
       </div>
-
-
     </main>
   </div>
 </template>
