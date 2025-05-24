@@ -884,13 +884,13 @@ watch(() => [agencyForm.value.AgencyStartDate, agencyForm.value.AgencyDuration],
       <div class="flex items-center space-x-6">
         <!-- Contacts discrètement intégrés -->
         <div class="hidden md:flex items-center space-x-4">
-          <a href="mailto:contact@corsatcom.com" class="text-blue-100 hover:text-white transition-colors" title="Email">
+          <a href="mailto:contact@corsatcom.net" class="text-blue-100 hover:text-white transition-colors" title="Email">
             <i class="fas fa-envelope mr-1"></i>
-            <span class="text-sm">contact@corsatcom.com</span>
+            <span class="text-sm">contact@corsatcom.net</span>
           </a>
           <a href="tel:+1234567890" class="text-blue-100 hover:text-white transition-colors" title="Téléphone">
             <i class="fas fa-phone-alt mr-1"></i>
-            <span class="text-sm">+1 234 567 890</span>
+            <span class="text-sm">+243 826 035 322</span>
           </a>
         </div>
 
@@ -1133,7 +1133,7 @@ watch(() => [agencyForm.value.AgencyStartDate, agencyForm.value.AgencyDuration],
         <!-- Dans la carte d'agence, modifiez la barre de progression -->
         <div class="mb-4">
   <div class="flex justify-between items-center mb-2">
-    <span class="text-xs font-medium text-gray-500">Consommation automatique</span>
+    <span class="text-xs font-medium text-gray-500">Evolution du forfait</span>
     <div class="flex items-center">
       <span class="text-xs font-semibold" :class="{
         'text-green-600': (parseFloat(agency.package.used) / parseFloat(agency.package.total) * 100) < 70,
