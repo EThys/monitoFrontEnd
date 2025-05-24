@@ -8,7 +8,7 @@ import AgenceClientView from '@/views/dashboard/AgenceClientView.vue'
 import UnauthorizedView from '@/views/Errors/UnauthorizedView.vue'
 import NotFoundView from '@/views/Errors/NotFoundView.vue'
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-import { getUser, type IUser } from '@/stores/user'
+import { getUser } from '@/stores/user'
 import PlanForfaitView from '@/views/PlanForfaitView.vue'
 import RegisterView from '@/views/Auth/RegisterView.vue'
 
@@ -156,6 +156,7 @@ router.beforeEach(async (to, from, next) => {
   //   switch(user.Role) {
   //     case 'admin':
   //       redirectPath = '/admin/dashboard/agence';
+
   //       break;
   //     case 'manager':
   //       redirectPath = '/user/dashboard/mes-agences';
