@@ -56,13 +56,10 @@ onUnmounted(() => {
           <!-- Email et téléphone à gauche -->
           <div class="flex flex-wrap gap-4 text-sm">
             <a href="#" class="text-white hover:text-gray-200 flex items-center">
-              <i class="fas fa-envelope mr-1"></i>contact@gmail.com
+              <i class="fas fa-envelope mr-1"></i>contact@corsatcom.net
             </a>
             <a href="#" class="text-white hover:text-gray-200 flex items-center">
-              <i class="fas fa-phone-alt mr-1"></i>+243 893 091 500
-            </a>
-            <a href="#" class="text-white hover:text-gray-200 flex items-center">
-              <i class="fas fa-address-card mr-1"></i>15 Tanganyika Avenue...
+              <i class="fas fa-phone-alt mr-1"></i>+243 826 035 322
             </a>
           </div>
 
