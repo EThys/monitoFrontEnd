@@ -17,6 +17,10 @@ import type { IPlan } from '@/utils/interface/plan/IPlan';
 import { clearUser, getUser } from '@/stores/user'
 //@ts-ignore
 import { clearToken } from '@/stores/token'
+//@ts-ignore
+
+
+const user = getUser();
 
 
 //@ts-ignore
@@ -49,6 +53,16 @@ const getAllPlans = async () => {
     isLoading.value = false;
   }
 };
+
+const handleSearch = () => {
+  // Vous pouvez ajouter un debounce ici si nécessaire
+  console.log("Recherche en cours...");
+};
+
+const clearSearch = () => {
+  searchQuery.value = '';
+};
+
 
 onMounted(() => {
   getAllPlans();
@@ -462,25 +476,51 @@ function formatPrice(price: number) {
 
   <div class="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
   <!-- Header élégant avec fond dégradé -->
-  <header class="bg-gradient-to-r from-blue-700 to-blue-600 shadow-lg  top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-      <!-- Première ligne avec le menu utilisateur -->
-      <div class="flex justify-end items-center mb-2">
+  <header class="bg-gradient-to-r from-blue-800 to-blue-700 shadow-md top-0 z-50 backdrop-blur-sm bg-opacity-90">
+  <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+    <!-- Première ligne avec logo et menu utilisateur -->
+    <div class="flex justify-between items-center">
+      <!-- Logo et nom de l'entreprise -->
+      <div class="flex items-center space-x-3">
+        <div class="h-10 w-10 rounded-lg bg-white/10 flex items-center justify-center border border-white/20">
+          <i class="fas fa-satellite-dish text-white text-lg"></i>
+        </div>
+        <div>
+          <h2 class="font-bold text-white text-xl tracking-tight">Corsatcom</h2>
+          <p class="text-blue-100 text-xs">Solutions Haut Débit</p>
+          <p class="text-blue-100 text-xs">{{user?.user.UserPhone}}</p>
+          <p class="text-blue-100 text-xs">{{user?.user.UserEmail}}</p>
+        </div>
+      </div>
+
+      <!-- Menu utilisateur et contacts -->
+      <div class="flex items-center space-x-6">
+        <!-- Contacts discrètement intégrés -->
+        <div class="hidden md:flex items-center space-x-4">
+          <a href="mailto:contact@corsatcom.com" class="text-blue-100 hover:text-white transition-colors" title="Email">
+            <i class="fas fa-envelope mr-1"></i>
+            <span class="text-sm">contact@corsatcom.com</span>
+          </a>
+          <a href="tel:+1234567890" class="text-blue-100 hover:text-white transition-colors" title="Téléphone">
+            <i class="fas fa-phone-alt mr-1"></i>
+            <span class="text-sm">+1 234 567 890</span>
+          </a>
+        </div>
+
+        <!-- Menu utilisateur -->
+        <!-- Menu utilisateur -->
         <div class="relative">
-          <!-- Bouton profil -->
           <button
-            @click="toggleUserMenu"
-            class="flex items-center cursor-pointer text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-white"
+            @click.stop="toggleUserMenu"
+            class="flex items-center space-x-2 cursor-pointer rounded-full focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-800"
           >
-            <span class="sr-only">Ouvrir le menu utilisateur</span>
-            <div class="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center text-white border border-white/30">
-              <i class="fas fa-user"></i>
+            <div class="h-9 w-9 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 backdrop-blur-sm">
+              <i class="fas fa-user text-sm"></i>
             </div>
-            <span class="ml-2 text-white text-sm hidden md:inline">Mon compte</span>
-            <i class="fas fa-chevron-down ml-1 text-white/80 text-xs hidden md:inline"></i>
+            <span class="text-white text-sm hidden md:inline font-medium">Mon compte</span>
           </button>
 
-          <!-- Menu dropdown -->
+          <!-- Ajoutez ce div pour la zone de clic externe -->
           <transition
             enter-active-class="transition ease-out duration-100"
             enter-from-class="transform opacity-0 scale-95"
@@ -491,57 +531,88 @@ function formatPrice(price: number) {
           >
             <div
               v-if="isUserMenuOpen"
-              class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+              class="fixed inset-0 z-40"
+              @click="isUserMenuOpen = false"
+            ></div>
+          </transition>
+
+          <transition
+            enter-active-class="transition ease-out duration-100"
+            enter-from-class="transform opacity-0 scale-95"
+            enter-to-class="transform opacity-100 scale-100"
+            leave-active-class="transition ease-in duration-75"
+            leave-from-class="transform opacity-100 scale-100"
+            leave-to-class="transform opacity-0 scale-95"
+          >
+            <div
+              v-if="isUserMenuOpen"
+              class="origin-top-right absolute right-0 mt-2 w-56 rounded-lg shadow-xl py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50 overflow-hidden"
             >
+              <div class="px-4 py-3 border-b border-gray-100">
+                <p class="text-sm font-medium text-gray-900">Compte administrateur</p>
+                <p class="text-xs text-gray-500 truncate">{{user?.user.UserEmail}}</p>
+              </div>
               <button
                 @click="logout"
-                class="block cursor-pointer w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                class="block w-full cursor-pointer text-left px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
               >
-                Se déconnecter
+                <i class="fas fa-sign-out-alt mr-2"></i> Déconnexion
               </button>
             </div>
           </transition>
         </div>
       </div>
+    </div>
 
-      <!-- Deuxième ligne avec le titre et la recherche (votre design existant) -->
-      <div class="flex flex-col md:flex-row justify-between items-center">
-        <div class="mb-4 md:mb-0">
-          <h1 class="text-3xl font-bold text-center text-white">Nos Forfaits Internet</h1>
-          <p class="text-blue-100 mt-2 mb-5">Découvrez nos solutions haut débit adaptées à vos besoins</p>
-        </div>
-        <div class="relative w-full md:w-96">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <i class="fas fa-search text-blue-200"></i>
-          </div>
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="Rechercher un forfait..."
-            class="w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-sm border border-blue-400/30 rounded-xl text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white focus:border-white transition-all"
-          >
-        </div>
+    <!-- Deuxième ligne avec titre et recherche -->
+    <div class="mt-8 mb-6 flex flex-col md:flex-row justify-between items-start md:items-end">
+      <div class="mb-4 md:mb-0 mb-">
+        <h1 class="text-3xl md:text-4xl font-bold text-white tracking-tight">Gestion des forfaits</h1>
+        <p class="text-blue-100 mt-2 text-sm md:text-base">Administrez votre réseau et vos solutions haut débit</p>
       </div>
 
-      <!-- Navigation principale -->
-      <nav class="flex justify-center space-x-6 py-3">
-        <router-link
-          to="/admin/dashboard/agence"
-          class="text-white/90 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
-          active-class="text-white font-semibold border-b-2 border-white"
+      <div class="relative mt-4 w-full md:w-auto md:min-w-[380px]">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <i class="fas fa-search text-blue-200"></i>
+        </div>
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Rechercher une agence..."
+          class="w-full pl-10 pr-10 py-2.5 bg-white/10 backdrop-blur-sm border border-blue-400/30 rounded-xl text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white focus:border-white transition-all"
+          @input="handleSearch"
         >
-          Agences
-        </router-link>
-        <router-link
-        to="/admin/dashboard/forfait"
-          class="text-white/90 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
-          active-class="text-white font-semibold border-b-2 border-white"
+        <button
+          v-if="searchQuery"
+          @click="clearSearch"
+          class="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-white transition-colors"
         >
-          Forfaits
-        </router-link>
-      </nav>
+          <i class="fas fa-times text-blue-200"></i>
+        </button>
+      </div>
     </div>
-  </header>
+
+    <!-- Navigation principale améliorée -->
+    <nav class="flex space-x-1 border-b border-white/20">
+      <router-link
+        to="/admin/dashboard/agence"
+        class="px-4 py-3 text-sm font-medium text-white/80 hover:text-white transition-colors relative group"
+        active-class="text-white font-semibold"
+      >
+        <span>Agences</span>
+        <span class="absolute bottom-0 left-0 w-full h-0.5 bg-white opacity-0 group-hover:opacity-30 transition-opacity" :class="{ 'opacity-100': $route.path.includes('agence') }"></span>
+      </router-link>
+      <router-link
+        to="/admin/dashboard/forfait"
+        class="px-4 py-3 text-sm font-medium text-white/80 hover:text-white transition-colors relative group"
+        active-class="text-white font-semibold"
+      >
+        <span>Forfaits</span>
+        <span class="absolute bottom-0 left-0 w-full h-0.5 bg-white opacity-0 group-hover:opacity-30 transition-opacity" :class="{ 'opacity-100': $route.path.includes('forfait') }"></span>
+      </router-link>
+    </nav>
+  </div>
+</header>
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
