@@ -13,86 +13,66 @@ interface Product {
   description: string;
   features: string[];
   price: string;
+  priceUSD: string;
   popular?: boolean;
   category: 'internet' | 'mobile' | 'entreprise' | 'cloud';
   icon: string;
+  dataLimit?: string;
 }
 
 // Données des produits
 const products = ref<Product[]>([
   {
     id: 1,
-    name: 'Fibre Optique Pro',
-    description: 'Internet ultra-rapide pour les professionnels et particuliers exigeants',
+    name: 'Epic Data 100GB',
+    description: 'Forfait satellite idéal pour une utilisation modérée',
     features: [
-      'Débit symétrique jusqu\'à 1Gbps',
-      'Latence ultra-faible',
-      'Support technique 24/7',
-      'Installation professionnelle'
+      '100GB de données haute vitesse',
+      'Vitesse jusqu\'à 25 Mbps',
+      'Couverture 100% du territoire',
+      'Support technique 24/7'
     ],
-    price: '49 900 FC/mois',
+    price: '140 $/mois',
+    priceUSD: '140',
     popular: true,
     category: 'internet',
-    icon: '📶'
+    icon: '🛰️',
+    dataLimit: '100GB'
   },
   {
     id: 2,
-    name: '4G+ Illimité',
-    description: 'Forfait mobile avec data illimitée et appels/SMS inclus',
+    name: 'Epic Data 150GB',
+    description: 'Forfait parfait pour les familles et télétravail',
     features: [
-      'Data vraiment illimitée',
-      'Appels et SMS illimités',
-      'Couverture nationale',
-      'Hotspot inclus'
+      '150GB de données haute vitesse',
+      'Vitesse jusqu\'à 35 Mbps',
+      'Priorité réseau améliorée',
+      'Support technique 24/7'
     ],
-    price: '29 900 FC/mois',
-    category: 'mobile',
-    icon: '📱'
+    price: '220 $/mois',
+    priceUSD: '220',
+    category: 'internet',
+    icon: '🚀',
+    dataLimit: '150GB'
   },
   {
     id: 3,
-    name: 'Solution Cloud Entreprise',
-    description: 'Infrastructure cloud sécurisée pour votre business',
+    name: 'Epic Data 200GB',
+    description: 'Solution haut débit pour usages intensifs',
     features: [
-      'Stockage sécurisé',
-      'Sauvegarde automatique',
-      'Accès multi-utilisateurs',
-      'Support dédié'
+      '200GB de données haute vitesse',
+      'Vitesse jusqu\'à 50 Mbps',
+      'Priorité réseau premium',
+      'Support technique 24/7'
     ],
-    price: 'Sur devis',
-    category: 'entreprise',
-    icon: '☁️'
+    price: '270 $/mois',
+    priceUSD: '270',
+    category: 'internet',
+    icon: '🌐',
+    dataLimit: '200GB'
   },
   {
     id: 4,
-    name: 'WiFi Public Sécurisé',
-    description: 'Solution de hotspot WiFi sécurisé pour établissements',
-    features: [
-      'Portail captif personnalisable',
-      'Analyse des données en temps réel',
-      'Gestion des utilisateurs',
-      'Sécurité renforcée'
-    ],
-    price: 'À partir de 99 900 FC/mois',
-    category: 'entreprise',
-    icon: '🔒'
-  },
-  {
-    id: 5,
-    name: 'Internet Satellite',
-    description: 'Connectivité même dans les zones les plus reculées',
-    features: [
-      'Couverture 100% du territoire',
-      'Installation rapide',
-      'Débit garanti',
-      'Maintenance incluse'
-    ],
-    price: '79 900 FC/mois',
-    category: 'internet',
-    icon: '🛰️'
-  },
-  {
-    id: 6,
     name: 'Téléphonie IP',
     description: 'Solution de téléphonie professionnelle sur IP',
     features: [
@@ -101,7 +81,8 @@ const products = ref<Product[]>([
       'Conférence audio',
       'Intégration CRM'
     ],
-    price: 'À partir de 14 900 FC/mois',
+    price: 'Sur devis',
+    priceUSD: 'Contact us',
     category: 'entreprise',
     icon: '📞'
   }
@@ -122,7 +103,7 @@ const filterProducts = (category: string) => {
 
 <template>
   <NavBar/>
-  <div  style="font-family: 'Inter', sans-serif;" class="products-page pt-30">
+  <div style="font-family: 'Inter', sans-serif;" class="products-page pt-30">
     <!-- Hero Section -->
     <section class="hero-section">
       <div class="hero-content">
@@ -152,7 +133,7 @@ const filterProducts = (category: string) => {
             :class="['category-button', { 'active': activeCategory === 'internet' }]"
             @click="filterProducts('internet')"
           >
-            Internet Haut Débit
+            Internet Satellite
           </button>
           <button
             :class="['category-button', { 'active': activeCategory === 'mobile' }]"
@@ -173,7 +154,63 @@ const filterProducts = (category: string) => {
     <!-- Produits Grid -->
     <section class="products-section">
       <div class="container">
-        <div class="products-grid">
+        <div v-if="activeCategory === 'internet'" class="internet-comparison">
+          <h2 class="section-title">Forfaits Internet Satellite</h2>
+          <p class="section-subtitle">Choisissez la solution qui correspond à vos besoins de connexion</p>
+
+          <div class="comparison-table">
+            <div class="comparison-header">
+              <div class="header-features">Caractéristiques</div>
+              <div v-for="product in filteredProducts.filter(p => p.category === 'internet')"
+                   :key="product.id"
+                   :class="['header-plan', { 'popular': product.popular }]">
+                <div v-if="product.popular" class="popular-badge">Populaire</div>
+                <div class="plan-name">{{ product.name }}</div>
+                <div class="plan-price">{{ product.price }}</div>
+                <div class="plan-data">{{ product.dataLimit }}</div>
+              </div>
+            </div>
+
+            <div class="comparison-row">
+              <div class="row-title">Volume de données</div>
+              <div v-for="product in filteredProducts.filter(p => p.category === 'internet')"
+                   :key="product.id" class="row-value">
+                {{ product.dataLimit }}
+              </div>
+            </div>
+
+            <div class="comparison-row">
+              <div class="row-title">Vitesse maximale</div>
+              <div class="row-value">Jusqu'à 25 Mbps</div>
+              <div class="row-value">Jusqu'à 35 Mbps</div>
+              <div class="row-value">Jusqu'à 50 Mbps</div>
+            </div>
+
+            <div class="comparison-row">
+              <div class="row-title">Support technique</div>
+              <div class="row-value">24/7</div>
+              <div class="row-value">24/7</div>
+              <div class="row-value">24/7 Premium</div>
+            </div>
+
+            <div class="comparison-row">
+              <div class="row-title">Installation</div>
+              <div class="row-value">Standard</div>
+              <div class="row-value">Standard</div>
+              <div class="row-value">Professionnelle incluse</div>
+            </div>
+
+            <div class="comparison-footer">
+              <div class="footer-empty"></div>
+              <div v-for="product in filteredProducts.filter(p => p.category === 'internet')"
+                   :key="product.id" class="footer-action">
+                <button class="subscribe-button">Souscrire</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div v-else class="products-grid">
           <div
             v-for="product in filteredProducts"
             :key="product.id"
@@ -183,6 +220,12 @@ const filterProducts = (category: string) => {
             <div class="product-icon">{{ product.icon }}</div>
             <h3 class="product-name">{{ product.name }}</h3>
             <p class="product-description">{{ product.description }}</p>
+
+            <div v-if="product.dataLimit" class="data-limit">
+              <div class="data-circle">
+                {{ product.dataLimit }}
+              </div>
+            </div>
 
             <div class="product-features">
               <div v-for="(feature, index) in product.features" :key="index" class="feature-item">
@@ -201,37 +244,6 @@ const filterProducts = (category: string) => {
         </div>
       </div>
     </section>
-
-    <!-- Section Services Additionnels -->
-    <!-- <section class="services-section">
-      <div class="container">
-        <h2 class="section-title">Services Complémentaires</h2>
-        <p class="section-subtitle">Améliorez votre expérience avec nos services premium</p>
-
-        <div class="services-grid">
-          <div class="service-card">
-            <div class="service-icon">🛡️</div>
-            <h3>Cybersécurité</h3>
-            <p>Protection avancée contre les cybermenaces pour votre entreprise et vos données.</p>
-            <a href="#" class="service-link">En savoir plus →</a>
-          </div>
-
-          <div class="service-card">
-            <div class="service-icon">👨‍💻</div>
-            <h3>Support Premium</h3>
-            <p>Accès prioritaire à notre équipe technique avec temps de réponse garanti.</p>
-            <a href="#" class="service-link">En savoir plus →</a>
-          </div>
-
-          <div class="service-card">
-            <div class="service-icon">🏢</div>
-            <h3>Installation Pro</h3>
-            <p>Installation et configuration par nos experts certifiés pour des performances optimales.</p>
-            <a href="#" class="service-link">En savoir plus →</a>
-          </div>
-        </div>
-      </div>
-    </section> -->
 
     <!-- Section CTA -->
     <section class="cta-section">
@@ -491,6 +503,26 @@ const filterProducts = (category: string) => {
   flex-grow: 1;
 }
 
+.data-limit {
+  margin: 1rem 0;
+  display: flex;
+  justify-content: center;
+}
+
+.data-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
 .product-features {
   margin-bottom: 2rem;
 }
@@ -538,60 +570,123 @@ const filterProducts = (category: string) => {
   background-color: var(--primary-dark);
 }
 
-/* Services Section */
-.services-section {
-  padding: 4rem 0;
-  background-color: white;
-}
-
-.services-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem;
+/* Comparison Table */
+.internet-comparison {
+  width: 100%;
   margin-top: 2rem;
 }
 
-.service-card {
-  background-color: #f8fafc;
+.comparison-table {
+  display: grid;
+  grid-template-columns: 1fr repeat(3, 1.5fr);
   border-radius: var(--border-radius);
-  padding: 2rem;
-  transition: var(--transition);
-}
-
-.service-card:hover {
-  transform: translateY(-5px);
+  overflow: hidden;
   box-shadow: var(--box-shadow);
+  background-color: white;
 }
 
-.service-icon {
-  font-size: 2rem;
-  margin-bottom: 1rem;
+.comparison-header {
+  display: contents;
 }
 
-.service-card h3 {
+.header-features {
+  grid-column: 1;
+  padding: 1.5rem;
+  background-color: var(--primary);
+  color: white;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+}
+
+.header-plan {
+  grid-column: span 1;
+  padding: 1.5rem;
+  text-align: center;
+  position: relative;
+  background-color: #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.header-plan.popular {
+  background-color: #dbeafe;
+}
+
+.plan-name {
   font-size: 1.25rem;
   font-weight: 700;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
-.service-card p {
-  color: var(--gray);
-  margin-bottom: 1.5rem;
-}
-
-.service-link {
+.plan-price {
+  font-size: 1.5rem;
+  font-weight: 800;
   color: var(--primary);
-  font-weight: 600;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  transition: var(--transition);
+  margin-bottom: 0.5rem;
 }
 
-.service-link:hover {
-  color: var(--primary-dark);
-  gap: 0.5rem;
+.plan-data {
+  font-size: 0.9rem;
+  color: var(--gray);
+}
+
+.comparison-row {
+  display: contents;
+}
+
+.comparison-row:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.row-title {
+  grid-column: 1;
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.row-value {
+  grid-column: span 1;
+  padding: 1rem;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.comparison-footer {
+  display: contents;
+}
+
+.footer-empty {
+  grid-column: 1;
+  padding: 1.5rem;
+}
+
+.footer-action {
+  grid-column: span 1;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.subscribe-button {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  width: 100%;
+}
+
+.subscribe-button:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
 }
 
 /* CTA Section */
@@ -630,8 +725,6 @@ const filterProducts = (category: string) => {
   transition: var(--transition);
 }
 
-
-
 /* Responsive Design */
 @media (max-width: 1024px) {
   .hero-title {
@@ -640,6 +733,10 @@ const filterProducts = (category: string) => {
 
   .hero-subtitle {
     font-size: 1.125rem;
+  }
+
+  .comparison-table {
+    grid-template-columns: 1fr repeat(3, 1.2fr);
   }
 }
 
@@ -675,6 +772,22 @@ const filterProducts = (category: string) => {
   .products-grid {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   }
+
+  .comparison-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .comparison-header, .comparison-row, .comparison-footer {
+    display: inline-block;
+    vertical-align: top;
+    min-width: 200px;
+  }
+
+  .header-features, .row-title, .footer-empty {
+    display: none;
+  }
 }
 
 @media (max-width: 480px) {
@@ -698,6 +811,14 @@ const filterProducts = (category: string) => {
 
   .product-name {
     font-size: 1.25rem;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+  }
+
+  .section-subtitle {
+    font-size: 0.9rem;
   }
 }
 </style>
