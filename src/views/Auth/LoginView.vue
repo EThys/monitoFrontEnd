@@ -107,9 +107,7 @@ const loginValidate = async () => {
           <!-- Logo -->
           <div class="flex items-center justify-center mb-8 transform transition-transform duration-300 hover:scale-105">
             <div class="w-12 h-12 bg-blue-600/10 rounded-xl flex items-center justify-center shadow-sm backdrop-blur-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-              </svg>
+              <i class="fas fa-satellite-dish text-white text-lg"></i>
             </div>
             <h1 class="text-2xl font-bold ml-3 text-gray-800 tracking-tight">Corsat<span class="font-light">Com</span></h1>
           </div>
