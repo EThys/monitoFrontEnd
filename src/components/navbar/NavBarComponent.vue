@@ -128,7 +128,7 @@ onUnmounted(() => {
             Accueil
           </router-link>
           <router-link
-            to="/about"
+            to="/produit"
             class="text-gray-700 hover:text-blue-600 p-2 rounded hover:bg-gray-50"
             @click="isMobileMenuOpen = false"
           >
