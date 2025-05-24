@@ -23,9 +23,6 @@ import { clearToken } from '@/stores/token'
 const user = getUser();
 
 
-//@ts-ignore
-import SideBar from '@/components/navbar/SIdeBarComponent.vue';
-
 
 const toast = useToast()
 

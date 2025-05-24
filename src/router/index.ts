@@ -2,7 +2,6 @@ import HomeView from '../views/HomeView.vue'
 import ProduiView from '@/views/ProduiView.vue'
 import ContactView from '@/views/ContactView.vue'
 import LoginView from '@/views/Auth/LoginView.vue'
-import DashboardView from '@/views/dashboard/DashboardView.vue'
 import AgenceView from '@/views/dashboard/AgenceView.vue'
 import AgenceClientView from '@/views/dashboard/AgenceClientView.vue'
 import UnauthorizedView from '@/views/Errors/UnauthorizedView.vue'
@@ -48,12 +47,6 @@ const routes: Array<RouteRecordRaw> = [
     name: 'login',
     component: LoginView,
     meta: { title: 'Connexion', requiresAuth: false }
-  },
-  {
-    path: '/dashboard',
-    name: 'dashboard',
-    component: DashboardView,
-    meta: { requiresAuth: true, title: 'Tableau de bord' }
   },
   {
     path: '/register',

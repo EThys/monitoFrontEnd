@@ -20,7 +20,7 @@ import { setToken } from '@/stores/token'
 
 const router = useRouter()
 const toast = useToast()
-const loading = ref<Boolean>(false)
+const loading = ref<boolean>(false)
 const auth = ref<IUserAuth>({
   UserEmail: '',
   UserPassword: ''

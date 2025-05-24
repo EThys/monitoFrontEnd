@@ -17,7 +17,7 @@ import 'vue-toast-notification/dist/theme-sugar.css'
 const router = useRouter()
 const toast = useToast()
 const token = getToken() as string
-const loading = ref<Boolean>(false)
+const loading = ref<boolean>(false)
 const user = ref({
   UserName: '',
   UserPassword: '',
