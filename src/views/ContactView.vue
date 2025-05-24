@@ -111,19 +111,7 @@ interface ContactFormData {
 
               <!-- Carte de contact -->
               <div class="space-y-6">
-                <div class="flex items-start">
-                  <div class="flex-shrink-0 bg-blue-500 rounded-lg p-3">
-                    <i class="fas fa-map-marker-alt text-lg"></i>
-                  </div>
-                  <div class="ml-4">
-                    <h3 class="text-lg font-medium">Adresse</h3>
-                    <p class="mt-1 text-blue-100">
-                      15 Avenue Tanganyika<br>
-                      Quartier DIPA, Commune Diulu<br>
-                      Mbujimayi, RDC
-                    </p>
-                  </div>
-                </div>
+
 
                 <div class="flex items-start">
                   <div class="flex-shrink-0 bg-blue-500 rounded-lg p-3">
@@ -132,8 +120,7 @@ interface ContactFormData {
                   <div class="ml-4">
                     <h3 class="text-lg font-medium">Téléphone</h3>
                     <p class="mt-1 text-blue-100">
-                      +243 893 091 500<br>
-                      +243 815 678 901
+                      +243 826 035 322
                     </p>
                   </div>
                 </div>
@@ -145,8 +132,7 @@ interface ContactFormData {
                   <div class="ml-4">
                     <h3 class="text-lg font-medium">Email</h3>
                     <p class="mt-1 text-blue-100">
-                      contact@yabiso.com<br>
-                      support@yabiso.com
+                      contact@corsatcom.net
                     </p>
                   </div>
                 </div>
